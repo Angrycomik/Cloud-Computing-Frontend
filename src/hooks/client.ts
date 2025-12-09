@@ -42,6 +42,8 @@ export function useHomeLogic() {
 
   const handleSearch = async () => {
     if (!start || !end) return alert("Please select both artists.");
+    if (start.value === end.value)
+      return alert("Please select two different artists.");
     setLoading(true);
     setResult(null);
 
@@ -93,10 +95,15 @@ export function useHomeLogic() {
         const newList = [...prevOptions, newOption];
         return newList;
       });
+    } else if (res.status === 409) {
+      return alert("Artist already exists.");
+    } else {
+      alert("Error adding artist.");
     }
   };
 
   const handleAddSong = async (a1: string, a2: string, song: string) => {
+    if (a1 === a2) return alert("Please select two different artists.");
     const res = await fetch(`${API_URL}/songs`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

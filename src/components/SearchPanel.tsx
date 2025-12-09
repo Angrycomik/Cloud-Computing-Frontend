@@ -25,7 +25,7 @@ export default function SearchPanel({ options, start, end, setStart, setEnd, onS
           options={options} 
           value={start}
           onChange={setStart}
-          placeholder="Start Artist..." 
+          placeholder="Start Artist(e.g Paul McCartney)" 
           styles={selectStyles}
         />
         <Select 
@@ -33,7 +33,7 @@ export default function SearchPanel({ options, start, end, setStart, setEnd, onS
           options={options} 
           value={end}
           onChange={setEnd}
-          placeholder="End Artist..." 
+          placeholder="End Artist(e.g Taylor Swift)" 
           styles={selectStyles}
         />
       </div>
