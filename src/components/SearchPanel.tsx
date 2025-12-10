@@ -81,7 +81,7 @@ export default function SearchPanel({
         />
         <button
           onClick={onGenreSearch}
-          style={{ ...btnStyle, background: "#fff", color: "#1DB954" }}
+          style={btnStyle}
           disabled={loading}
         >
           Visualize
