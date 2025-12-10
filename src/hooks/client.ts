@@ -19,26 +19,65 @@ export function useHomeLogic() {
     nodes: [],
     links: [],
   });
-
+  const [genres, setGenres] = useState<ArtistOption[]>([]);
+  const [selectedGenre, setSelectedGenre] = useState<ArtistOption | null>(null);
   const [artistOptions, setArtistOptions] = useState<ArtistOption[]>([]);
 
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 
-  const fetchArtists = async () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const resArtists = await fetch(`${API_URL}/artists`);
+        if (resArtists.ok) {
+          const names: string[] = await resArtists.json();
+          setArtistOptions(names.map((name) => ({ value: name, label: name })));
+        }
+
+        const resGenres = await fetch(`${API_URL}/genres`);
+        if (resGenres.ok) {
+          const names: string[] = await resGenres.json();
+          setGenres(names.map((name) => ({ value: name, label: name })));
+        }
+      } catch (e) {
+        console.error("Failed to fetch data", e);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleGenreSearch = async () => {
+    if (!selectedGenre) return;
+    setLoading(true);
+    setResult(null);
+
     try {
-      const res = await fetch(`${API_URL}/artists`);
+      const encodedGenre = encodeURIComponent(selectedGenre.value);
+      const res = await fetch(`${API_URL}/genres/${encodedGenre}`);
+
       if (res.ok) {
-        const names: string[] = await res.json();
-        setArtistOptions(names.map((name) => ({ value: name, label: name })));
+        const artists: string[] = await res.json();
+        const centerNode: GraphNode = { id: selectedGenre.value, group: 2 };
+        const artistNodes: GraphNode[] = artists.map((name) => ({
+          id: name,
+          group: 1,
+        }));
+        const nodes = [centerNode, ...artistNodes];
+
+        const links: GraphLink[] = artists.map((artist) => ({
+          source: selectedGenre.value,
+          target: artist,
+          name: "PLAYS_GENRE",
+        }));
+        setGraphData({ nodes, links });
+        setResult({ found: true, path: [], songs: [] });
       }
     } catch (e) {
-      console.error("Failed to fetch artists", e);
+      alert("Error fetching genre data");
+    } finally {
+      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchArtists();
-  }, []);
 
   const handleSearch = async () => {
     if (!start || !end) return alert("Please select both artists.");
@@ -140,5 +179,9 @@ export function useHomeLogic() {
     handleAddArtist,
     handleAddSong,
     handleDeleteArtist,
+    genres,
+    selectedGenre,
+    setSelectedGenre,
+    handleGenreSearch,
   };
 }

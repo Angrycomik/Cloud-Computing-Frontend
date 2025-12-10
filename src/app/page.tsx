@@ -22,6 +22,10 @@ export default function Home() {
     handleAddArtist,
     handleAddSong,
     handleDeleteArtist,
+    genres,
+    selectedGenre,
+    setSelectedGenre,
+    handleGenreSearch
   } = useHomeLogic();
 
   const containerStyle = {
@@ -67,17 +71,22 @@ export default function Home() {
       <div style={{ maxWidth: 900, margin: "0 auto", padding: 20 }}>
         {activeTab === "search" ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <SearchPanel
-              options={artistOptions}
-              start={start}
-              end={end}
-              setStart={setStart}
-              setEnd={setEnd}
-              onSearch={handleSearch}
-              loading={loading}
-            />
+              <SearchPanel
+                options={artistOptions}
+                start={start}
+                end={end}
+                setStart={setStart}
+                setEnd={setEnd}
+                onSearch={handleSearch}
+                loading={loading}
+                
+                genres={genres}
+                selectedGenre={selectedGenre}
+                setSelectedGenre={setSelectedGenre}
+                onGenreSearch={handleGenreSearch}
+              />
             {result && result.found ? (
-              <GraphVisualizer data={graphData} />
+              <GraphVisualizer data={graphData} viewType={result.path.length === 0 ? "cluster" : "path"} />
             ) : result && !result.found ? (
               <div
                 style={{

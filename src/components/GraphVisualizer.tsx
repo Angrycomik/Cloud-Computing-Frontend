@@ -13,9 +13,10 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
 
 interface Props {
   data: GraphData;
+  viewType: "path" | "cluster";
 }
 
-export default function GraphVisualizer({ data }: Props) {
+export default function GraphVisualizer({ data, viewType }: Props) {
   const graphRef = useRef<any>(null);
 
   return (
@@ -38,12 +39,18 @@ export default function GraphVisualizer({ data }: Props) {
           const label = node.id;
           const fontSize = 12 / globalScale;
 
-          const color =
-            node.group === 2
-              ? "#1DB954"
-              : node.group === 3
-              ? "#ff4444"
-              : "#ffffff";
+          let color = "#ffffff";
+
+          if (viewType === "cluster") {
+            color = node.group === 2 ? "#bf5af2" : "#ffffff";
+          } else {
+            color =
+              node.group === 2
+                ? "#1DB954"
+                : node.group === 3
+                ? "#ff4444"
+                : "#ffffff";
+          }
 
           ctx.beginPath();
           ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI, false);
@@ -56,13 +63,12 @@ export default function GraphVisualizer({ data }: Props) {
           ctx.fillStyle = "white";
           ctx.fillText(label, node.x, node.y + 8);
         }}
-
         nodeLabel="id"
         nodeRelSize={8}
         linkColor={() => "#555"}
         linkWidth={2}
         linkLabel="name"
-        linkDirectionalArrowLength={6}
+        linkDirectionalArrowLength={viewType === "path" ? 6 : 0}
         linkDirectionalArrowRelPos={1}
         cooldownTicks={100}
         onEngineStop={() => graphRef.current?.zoomToFit(400)}
@@ -77,10 +83,19 @@ export default function GraphVisualizer({ data }: Props) {
           borderRadius: 5,
         }}
       >
-        <div style={{ color: "#1DB954" }}>Start</div>
-        <div style={{ color: "#fff" }}>Path Node</div>
-        <div style={{ color: "#ff4444" }}>End</div>
-        <small style={{ color: "#aaa" }}>Hover link to see song name</small>
+        {viewType === "cluster" ? (
+          <>
+            <div style={{ color: "#bf5af2" }}>Selected Genre</div>
+            <div style={{ color: "#fff" }}>Top Artists</div>
+          </>
+        ) : (
+          <>
+            <div style={{ color: "#1DB954" }}>Start</div>
+            <div style={{ color: "#fff" }}>Path Node</div>
+            <div style={{ color: "#ff4444" }}>End</div>
+            <small style={{ color: "#aaa" }}>Hover link to see song name</small>
+          </>
+        )}
       </div>
     </div>
   );
